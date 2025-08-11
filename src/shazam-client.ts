@@ -1,33 +1,6 @@
-import axios from 'axios';
-import { v4 as uuidv4 } from 'uuid';
 import { Shazam } from 'node-shazam';
 
-export interface ShazamTrack {
-  title: string;
-  subtitle: string; // artist
-  sections?: Array<{
-    metapages?: Array<{
-      caption?: string; // album
-    }>;
-  }>;
-  images?: {
-    coverart?: string;
-    background?: string;
-  };
-  hub?: {
-    providers?: Array<{
-      type?: string;
-      actions?: Array<{
-        name?: string;
-        uri?: string;
-      }>;
-    }>;
-  };
-}
 
-export interface ShazamResponse {
-  track?: ShazamTrack;
-}
 
 export interface SongInfo {
   title: string;

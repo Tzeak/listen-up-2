@@ -132,26 +132,7 @@ class ShazamMentraOSApp extends AppServer {
     this.updateDashboard(session);
   }
 
-  private stopListening(session?: AppSession) {
-    if (!this.isListening) return;
 
-    this.isListening = false;
-    console.log("⏹️ Stopping music listening...");
-
-    if (this.audioChunkTimer) {
-      clearTimeout(this.audioChunkTimer);
-      this.audioChunkTimer = null;
-    }
-
-    if (session) {
-      session.layouts.showTextWall("⏹️ Stopped listening for music", {
-        view: ViewType.MAIN,
-        durationMs: 2000
-      });
-      this.setupMainUI(session);
-      this.updateDashboard(session);
-    }
-  }
 
   private handleAudioChunk(session: AppSession, data: any) {
     if (!this.isListening || this.isProcessing) {
