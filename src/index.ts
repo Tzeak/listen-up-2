@@ -33,12 +33,6 @@ class ShazamMentraOSApp extends AppServer {
     // Store the current session for UI updates
     this.currentSession = session;
 
-    // Show welcome message
-    session.layouts.showTextWall("🎵 Shazam Forever Ready!", {
-      view: ViewType.MAIN,
-      durationMs: 3000
-    });
-
     // Subscribe to audio chunks
     console.log('🔊 Subscribing to audio chunks...');
     session.subscribe(StreamType.AUDIO_CHUNK);
@@ -57,12 +51,6 @@ class ShazamMentraOSApp extends AppServer {
     // Handle battery updates
     session.events.onGlassesBattery((data) => {
       console.log('🔋 Glasses battery:', data.level + '%', data.charging ? '(charging)' : '');
-      if (data.level < 20) {
-        session.layouts.showTextWall("⚠️ Low battery! Consider charging soon.", {
-          view: ViewType.MAIN,
-          durationMs: 3000
-        });
-      }
     });
 
     // Listen for dashboard mode changes
@@ -76,29 +64,15 @@ class ShazamMentraOSApp extends AppServer {
   }
 
   private setupMainUI(session: AppSession) {
-    // Keep main view minimal - just show status
-    const statusText = this.getStatusText();
-    session.layouts.showTextWall(statusText, {
-      view: ViewType.MAIN,
-      durationMs: 0 // No auto-dismiss
-    });
-  }
-
-  private getStatusText(): string {
-    if (this.isProcessing) {
-      return "🎵 Shazam Forever\n\n🔍 Processing audio...";
-    } else if (this.isListening) {
-      return ""; // No need to show anything in the main view
-    } else {
-      return "🎵 Shazam Forever\n\n⏸️ Paused";
-    }
+    // Don't show anything in the main view - keep it clean
+    // All information will be shown in the dashboard when user looks up
   }
 
   private updateDashboard(session: AppSession) {
     if (this.lastSong) {
       // Show current song in dashboard with more details
       const dashboardText = `Now Playing\n${this.lastSong.title}\nby ${this.lastSong.artist}\nAlbum: ${this.lastSong.album || 'Unknown'}`;
-      
+
       // Write to main dashboard
       session.dashboard.content.writeToMain(dashboardText);
       
@@ -120,12 +94,6 @@ class ShazamMentraOSApp extends AppServer {
 
     this.isListening = true;
     console.log("🎧 Starting continuous music listening...");
-
-    // Update UI
-    session.layouts.showTextWall("🎧 Starting to listen for music...", {
-      view: ViewType.MAIN,
-      durationMs: 2000
-    });
 
     // Update main UI and dashboard
     this.setupMainUI(session);
@@ -153,10 +121,10 @@ class ShazamMentraOSApp extends AppServer {
 
     // If we don't have a timer running, start one
     if (!this.audioChunkTimer) {
-      console.log('⏰ Starting 5-second timer for audio processing...');
+      console.log('⏰ Starting 10-second timer for audio processing...');
       this.audioChunkTimer = setTimeout(() => {
         this.processAudioChunks(session);
-      }, 5000); // Process every 5 seconds of audio
+      }, 10000); // Process every 10 seconds of audio
     }
   }
 
@@ -202,10 +170,6 @@ class ShazamMentraOSApp extends AppServer {
 
     } catch (error) {
       console.error("❌ Error processing audio chunks:", error);
-      session.layouts.showTextWall("❌ Error processing audio", {
-        view: ViewType.MAIN,
-        durationMs: 2000
-      });
     } finally {
       // Clear the audio chunks buffer
       this.audioChunks = [];
@@ -273,21 +237,8 @@ class ShazamMentraOSApp extends AppServer {
 
     console.log(`📜 Song history updated (${this.songHistory.length} songs)`);
 
-    // Show song info prominently in main view briefly
-    const songText = `🎵 Song Found!\n\n${songInfo.title}\nby ${songInfo.artist}`;
-    
-    session.layouts.showTextWall(songText, {
-      view: ViewType.MAIN,
-      durationMs: 5000
-    });
-
     // Update the dashboard immediately with new song
     this.updateDashboard(session);
-
-    // Update the main UI after song display to show listening status
-    setTimeout(() => {
-      this.updateUI();
-    }, 5000);
   }
 }
 
