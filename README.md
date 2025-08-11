@@ -1,64 +1,104 @@
-# MentraOS-Cloud-Example-App
+# Shazam Forever - MentraOS App
 
-### Install MentraOS on your phone
+A continuous music recognition app for MentraOS glasses that automatically listens to your environment and identifies songs using the Shazam API.
 
-MentraOS install links: [mentra.glass/install](https://mentra.glass/install)
+## Features
 
-### (Easiest way to get started) Set up ngrok
+- 🎵 **Always-On Music Recognition**: Continuously listens for music automatically
+- 🎧 **Real Audio Recording**: Uses MentraOS AudioChunk API for live audio processing
+- 📜 **Song History**: Keep track of recently identified songs
+- 🔋 **Battery Monitoring**: Get notified when glasses battery is low
+- 🎨 **Album Art Display**: View album artwork for identified songs
+- 🎤 **Hands-free Operation**: Perfect for use with smart glasses
 
-1. `brew install ngrok`
+## How It Works
 
-2. Make an ngrok account
+The app automatically starts listening when you connect your glasses and continuously processes audio chunks every 5 seconds. When music is detected, it displays the song information including title, artist, genre, and album art.
 
-3. [Use ngrok to make a static address/URL](https://dashboard.ngrok.com/)
+### Status Indicators
 
-### Register your App with MentraOS
+- **🎧 Listening...** - Actively monitoring for music
+- **🔍 Processing audio...** - Analyzing current audio sample
+- **⏸️ Paused** - Not currently listening
 
-1. Navigate to [console.mentra.glass](https://console.mentra.glass/)
+## Setup
 
-2. Click "Sign In", and log in with the same account you're using for MentraOS
+1. **Install Dependencies**:
+   ```bash
+   bun install
+   ```
 
-3. Click "Create App"
+2. **Environment Variables**:
+   Create a `.env` file with:
+   ```
+   PACKAGE_NAME=your-app-name
+   MENTRAOS_API_KEY=your-mentraos-api-key
+   PORT=3000
+   ```
 
-4. Set a unique package name like `com.yourName.yourAppName`
+3. **Run the App**:
+   ```bash
+   bun run dev
+   ```
 
-5. For "Public URL", enter your Ngrok's static URL
+4. **Deploy to MentraOS**:
+   - Get your webhook URL from ngrok or your public URL
+   - Configure the webhook in the [MentraOS Developer Console](https://console.mentra.glass/)
+   - Enable microphone permissions in the console
 
-6. In the edit app screen, add the microphone permission
+## Technical Implementation
 
-### Get your App running!
+### Audio Processing
+- **Real-time Audio**: Uses MentraOS AudioChunk API for continuous audio streaming
+- **Chunk Processing**: Combines 5-second audio chunks for analysis
+- **Shazam Integration**: Uses the `node-shazam` npm package for real song identification
 
-1. [Install bun](https://bun.sh/docs/installation)
+### Architecture
+- **Always-On**: Automatically starts listening when session begins
+- **Event-Driven**: Processes audio chunks as they arrive
+- **Non-Blocking**: Audio processing doesn't interfere with other operations
 
-2. Create a new repo from this template using the `Use this template` dropdown in the upper right or the following command: `gh repo create --template Mentra-Community/MentraOS-Cloud-Example-App`
+## Current Implementation
 
-    ![Create repo from template](https://github.com/user-attachments/assets/c10e14e8-2dc5-4dfa-adac-dd334c1b73a5)
+The current version includes:
+- ✅ Real audio recording via AudioChunk API
+- ✅ Always-on listening mode
+- ✅ Real Shazam API integration via node-shazam package
+- ✅ Song history tracking
+- ✅ Status indicators (Listening/Processing)
+- ✅ Error handling and logging
 
-3. Clone your new repo locally: `git clone <your-repo-url>`
+## File Structure
 
-4. cd into your repo, then type `bun install`
+```
+src/
+├── index.ts          # Main MentraOS app with audio processing
+└── shazam-client.ts  # Shazam API client
+```
 
-5. Set up your environment variables:
-   * Create a `.env` file in the root directory by copying the example: `cp .env.example .env`
-   * Edit the `.env` file with your app details:
-     ```
-     PORT=3000
-     PACKAGE_NAME=com.yourName.yourAppName
-     MENTRAOS_API_KEY=your_api_key_from_console
-     ```
-   * Make sure the `PACKAGE_NAME` matches what you registered in the MentraOS Console
-   * Get your `API_KEY` from the MentraOS Developer Console
+## Development
 
-6. Run your app with `bun run dev`
+The app is built using:
+- **TypeScript** for type safety
+- **MentraOS SDK** for glasses integration
+- **Bun** for fast development and runtime
+- **node-shazam npm package** for real song identification
 
-7. To expose your app to the internet (and thus MentraOS) with ngrok, run: `ngrok http --url=<YOUR_NGROK_URL_HERE> 3000`
-    * `3000` is the port. It must match what is in the app config. For example, if you entered `port: 8080`, use `8080` for ngrok instead.
+## AudioChunk API Usage
 
+The app subscribes to audio chunks and processes them in real-time:
 
-### Next Steps
+```typescript
+// Subscribe to audio chunks
+session.subscribe(StreamType.AUDIO_CHUNK);
 
-Check out the full documentation at [docs.mentra.glass](https://docs.mentra.glass/core-concepts)
+// Handle incoming audio chunks
+session.events.onAudioChunk((data) => {
+  // Process audio data
+  this.handleAudioChunk(session, data);
+});
+```
 
-#### Subscribing to events
+## License
 
-You can listen for transcriptions, translations, and other events within the onSession function.
+ISC
